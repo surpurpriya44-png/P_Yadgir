@@ -32,7 +32,7 @@ html, body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
-/* DASHBOARD */
+/* MAIN DASHBOARD */
 
 #dashboard {
     display: flex;
@@ -40,7 +40,7 @@ html, body {
     height: 100vh;
 }
 
-/* LEFT PANEL */
+/* LEFT SIDEBAR */
 
 #sidebar {
     width: 290px;
@@ -106,7 +106,7 @@ html, body {
     text-transform: uppercase;
 }
 
-/* LAYER LIST */
+/* LAYER LEGEND */
 
 #layer-list {
     display: flex;
@@ -170,7 +170,7 @@ html, body {
     background: #9C8A79;
 }
 
-/* SELECT ALL / CLEAR ALL */
+/* LAYER BUTTONS */
 
 .layer-actions {
     display: flex;
@@ -236,7 +236,7 @@ html, body {
     line-height: 1.8;
 }
 
-/* MAP AREA */
+/* MAP */
 
 #map-container {
     flex: 1;
@@ -281,32 +281,52 @@ html, body {
     color: #142D46;
 }
 
-/* SCALE BAR CONTAINER */
+/* SCALE BAR - FIXED BOTTOM LEFT */
 
-#scale-container {
-    position: absolute;
-    bottom: 22px;
-    left: 22px;
-    z-index: 9999;
-    background: rgba(255,255,255,0.96);
-    padding: 10px 14px;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-    min-width: 150px;
+#map .ol-viewport {
+    position: relative;
 }
 
-/* SCALE LINE */
+#map .ol-scale-line {
+    position: absolute !important;
 
-#scale-container .ol-scale-line {
-    position: relative !important;
-    left: auto !important;
-    bottom: auto !important;
+    left: 20px !important;
+    bottom: 20px !important;
+
+    top: auto !important;
     right: auto !important;
-    background: transparent !important;
-    padding: 0 !important;
+
+    background: rgba(255,255,255,0.96) !important;
+
+    padding: 10px 14px !important;
+
+    border-radius: 6px !important;
+
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+
+    z-index: 9999 !important;
 }
 
-#scale-container .ol-scale-line-inner {
+#map .ol-scale-bar {
+    position: relative !important;
+}
+
+#map .ol-scale-step-text {
+    color: #142D46 !important;
+    font-size: 11px !important;
+}
+
+#map .ol-scale-step-marker {
+    background: #142D46 !important;
+}
+
+#map .ol-scale-text {
+    color: #142D46 !important;
+    font-size: 12px !important;
+    font-weight: bold;
+}
+
+#map .ol-scale-line-inner {
     border: 2px solid #142D46 !important;
     border-top: none !important;
     color: #142D46 !important;
@@ -483,10 +503,6 @@ html, body {
 
         </div>
 
-        <!-- SCALE BAR TARGET -->
-
-        <div id="scale-container"></div>
-
     </main>
 
 </div>
@@ -495,60 +511,41 @@ html, body {
 <!-- QGIS2WEB SCRIPTS -->
 
 <script src="resources/qgis2web_expressions.js"></script>
-
 <script src="./resources/functions.js"></script>
-
 <script src="./resources/ol.js"></script>
-
 <script src="./resources/ol-layerswitcher.js"></script>
-
 <script src="resources/photon-geocoder-autocomplete.min.js"></script>
-
 <script src="resources/olms.js"></script>
 
 
 <!-- ORIGINAL MAP LAYERS -->
 
 <script src="layers/buildings_2.js"></script>
-
 <script src="layers/Landuse_3.js"></script>
-
 <script src="layers/Railway_4.js"></script>
-
 <script src="layers/Roads_5.js"></script>
-
 <script src="layers/Stream_ydg_6.js"></script>
-
 <script src="layers/Waterbodies_1_7.js"></script>
-
 <script src="layers/Yadgir_Boundary_8.js"></script>
 
 
 <!-- ORIGINAL STYLES -->
 
 <script src="styles/buildings_2_style.js"></script>
-
 <script src="styles/Landuse_3_style.js"></script>
-
 <script src="styles/Railway_4_style.js"></script>
-
 <script src="styles/Roads_5_style.js"></script>
-
 <script src="styles/Stream_ydg_6_style.js"></script>
-
 <script src="styles/Waterbodies_1_7_style.js"></script>
-
 <script src="styles/Yadgir_Boundary_8_style.js"></script>
 
 
 <script src="./layers/layers.js"></script>
-
 <script src="./resources/Autolinker.min.js"></script>
-
 <script src="./resources/qgis2web.js"></script>
 
 
-<!-- DASHBOARD FUNCTIONALITY -->
+<!-- DASHBOARD JAVASCRIPT -->
 
 <script>
 
@@ -569,9 +566,7 @@ html, body {
         map.set("dashboardInitialized", true);
 
 
-        /* =================================
-           1. GET ORIGINAL QGIS2WEB LAYERS
-        ================================= */
+        /* 1. GET ORIGINAL LAYERS */
 
         var originalLayers =
             (typeof layersList !== "undefined")
@@ -583,9 +578,7 @@ html, body {
         });
 
 
-        /* =================================
-           2. LAYER DEFINITIONS
-        ================================= */
+        /* 2. LAYER DEFINITIONS */
 
         var definitions = [
 
@@ -698,9 +691,7 @@ html, body {
         });
 
 
-        /* =================================
-           3. CREATE LEGEND CHECKBOXES
-        ================================= */
+        /* 3. CREATE LEGEND */
 
         var layerList = document.getElementById("layer-list");
 
@@ -748,9 +739,7 @@ html, body {
         });
 
 
-        /* =================================
-           4. SELECT ALL / CLEAR ALL
-        ================================= */
+        /* 4. SELECT ALL */
 
         document.getElementById("show-all")
         .addEventListener("click", function() {
@@ -771,6 +760,8 @@ html, body {
         });
 
 
+        /* 5. CLEAR ALL */
+
         document.getElementById("hide-all")
         .addEventListener("click", function() {
 
@@ -790,12 +781,9 @@ html, body {
         });
 
 
-        /* =================================
-           5. BASEMAP LAYERS
-        ================================= */
+        /* 6. BASEMAPS */
 
-        // Hide old tile basemaps if present.
-        // This prevents two basemaps appearing together.
+        // Hide existing tile basemaps to avoid overlap.
 
         allLayers.forEach(function(layer) {
 
@@ -835,7 +823,7 @@ html, body {
         });
 
 
-        // CARTODB LIGHT
+        // LIGHT MAP
 
         var light = new ol.layer.Tile({
 
@@ -854,7 +842,7 @@ html, body {
         });
 
 
-        // Add basemaps below vector layers.
+        // ADD BASEMAPS BELOW ORIGINAL MAP LAYERS
 
         map.getLayers().insertAt(0, satellite);
 
@@ -863,9 +851,7 @@ html, body {
         map.getLayers().insertAt(0, light);
 
 
-        /* =================================
-           6. BASEMAP BUTTONS
-        ================================= */
+        /* 7. BASEMAP SWITCHING */
 
         var basemapOptions = [
 
@@ -912,9 +898,7 @@ html, body {
         });
 
 
-        /* =================================
-           7. PROFESSIONAL SCALE BAR
-        ================================= */
+        /* 8. SCALE BAR - BOTTOM LEFT */
 
         var scaleBar = new ol.control.ScaleLine({
 
@@ -924,19 +908,17 @@ html, body {
 
             text: true,
 
-            minWidth: 120,
-
-            target: document.getElementById("scale-container")
+            minWidth: 120
 
         });
 
+        // No target container.
+        // OpenLayers places the scale bar in its map viewport.
 
         map.addControl(scaleBar);
 
 
-        /* =================================
-           8. MAP RESIZE
-        ================================= */
+        /* 9. MAP RESIZE */
 
         map.updateSize();
 
@@ -947,13 +929,13 @@ html, body {
         });
 
 
-        console.log("Yadgir GIS Dashboard Initialized");
+        console.log("Yadgir Dashboard Initialized");
 
         console.log("Original layers:", allLayers.length);
 
         console.log("Connected layers:", matchedLayers.length);
 
-        console.log("Scale bar added successfully");
+        console.log("Scale bar added at bottom-left");
 
     }
 
