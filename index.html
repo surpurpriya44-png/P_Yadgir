@@ -8,7 +8,6 @@
 
 <title>Yadgir District GIS Dashboard</title>
 
-<!-- QGIS2WEB CSS -->
 <link rel="stylesheet" href="./resources/ol.css">
 <link rel="stylesheet" href="resources/fontawesome-all.min.css">
 <link rel="stylesheet" href="resources/photon-geocoder-autocomplete.min.css">
@@ -31,8 +30,6 @@ html, body {
     overflow: hidden;
     font-family: Arial, Helvetica, sans-serif;
 }
-
-/* MAIN DASHBOARD */
 
 #dashboard {
     display: flex;
@@ -248,6 +245,7 @@ html, body {
 #map {
     width: 100%;
     height: 100%;
+    position: relative;
     background: #E7E9E6;
 }
 
@@ -281,13 +279,16 @@ html, body {
     color: #142D46;
 }
 
-/* SCALE BAR - FIXED BOTTOM LEFT */
+/* ==================================
+   SCALE BAR - BOTTOM LEFT CORNER
+================================== */
 
-#map .ol-viewport {
-    position: relative;
-}
+/* OpenLayers scale bar positioning */
 
+#map .ol-viewport .ol-overlaycontainer-stopevent .ol-scale-line,
+#map .ol-viewport .ol-overlaycontainer .ol-scale-line,
 #map .ol-scale-line {
+
     position: absolute !important;
 
     left: 20px !important;
@@ -296,35 +297,20 @@ html, body {
     top: auto !important;
     right: auto !important;
 
+    transform: none !important;
+
     background: rgba(255,255,255,0.96) !important;
 
     padding: 10px 14px !important;
 
     border-radius: 6px !important;
 
-    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25) !important;
 
     z-index: 9999 !important;
 }
 
-#map .ol-scale-bar {
-    position: relative !important;
-}
-
-#map .ol-scale-step-text {
-    color: #142D46 !important;
-    font-size: 11px !important;
-}
-
-#map .ol-scale-step-marker {
-    background: #142D46 !important;
-}
-
-#map .ol-scale-text {
-    color: #142D46 !important;
-    font-size: 12px !important;
-    font-weight: bold;
-}
+/* Scale line appearance */
 
 #map .ol-scale-line-inner {
     border: 2px solid #142D46 !important;
@@ -333,6 +319,30 @@ html, body {
     font-size: 12px !important;
     font-weight: bold;
     margin: 0 !important;
+}
+
+/* Scale bar text */
+
+#map .ol-scale-step-text,
+#map .ol-scale-text {
+    color: #142D46 !important;
+    font-size: 11px !important;
+}
+
+#map .ol-scale-step-marker {
+    background: #142D46 !important;
+}
+
+/* QGIS ATTRIBUTION - BOTTOM RIGHT */
+
+#map .ol-attribution {
+    position: absolute !important;
+    right: 5px !important;
+    bottom: 5px !important;
+    left: auto !important;
+    top: auto !important;
+    z-index: 1000 !important;
+    font-size: 10px !important;
 }
 
 /* OPENLAYERS CONTROLS */
@@ -350,10 +360,6 @@ html, body {
 
 .ol-control > button:hover {
     background: #DCECF4 !important;
-}
-
-.ol-attribution {
-    font-size: 10px !important;
 }
 
 /* POPUP */
@@ -383,7 +389,6 @@ html, body {
 }
 
 </style>
-
 </head>
 
 <body>
@@ -466,15 +471,12 @@ html, body {
             <hr style="border-color:#47647C;">
 
             <b>YADGIR DISTRICT</b><br>
-
             Karnataka, India<br>
-
             GIS-Based Spatial Information
 
         </div>
 
     </aside>
-
 
     <!-- MAP AREA -->
 
@@ -566,7 +568,7 @@ html, body {
         map.set("dashboardInitialized", true);
 
 
-        /* 1. GET ORIGINAL LAYERS */
+        /* 1. ORIGINAL LAYERS */
 
         var originalLayers =
             (typeof layersList !== "undefined")
@@ -647,7 +649,6 @@ html, body {
 
 
         var matchedLayers = [];
-
         var usedLayers = [];
 
 
@@ -677,13 +678,9 @@ html, body {
                 usedLayers.push(layer);
 
                 matchedLayers.push({
-
                     label: definition.label,
-
                     symbol: definition.symbol,
-
                     layer: layer
-
                 });
 
             }
@@ -706,7 +703,6 @@ html, body {
             var checkbox = document.createElement("input");
 
             checkbox.type = "checkbox";
-
             checkbox.checked = item.layer.getVisible();
 
 
@@ -729,9 +725,7 @@ html, body {
 
 
             label.appendChild(checkbox);
-
             label.appendChild(symbol);
-
             label.appendChild(name);
 
             layerList.appendChild(label);
@@ -782,8 +776,6 @@ html, body {
 
 
         /* 6. BASEMAPS */
-
-        // Hide existing tile basemaps to avoid overlap.
 
         allLayers.forEach(function(layer) {
 
@@ -842,12 +834,10 @@ html, body {
         });
 
 
-        // ADD BASEMAPS BELOW ORIGINAL MAP LAYERS
+        // INSERT BASEMAPS BELOW VECTOR LAYERS
 
         map.getLayers().insertAt(0, satellite);
-
         map.getLayers().insertAt(0, osm);
-
         map.getLayers().insertAt(0, light);
 
 
@@ -887,7 +877,6 @@ html, body {
 
                 });
 
-
                 option.layer.setVisible(true);
 
                 document.getElementById(option.id)
@@ -898,7 +887,7 @@ html, body {
         });
 
 
-        /* 8. SCALE BAR - BOTTOM LEFT */
+        /* 8. SCALE BAR */
 
         var scaleBar = new ol.control.ScaleLine({
 
@@ -912,30 +901,76 @@ html, body {
 
         });
 
-        // No target container.
-        // OpenLayers places the scale bar in its map viewport.
-
         map.addControl(scaleBar);
 
 
-        /* 9. MAP RESIZE */
+        /*
+         * FORCE SCALE BAR TO BOTTOM LEFT.
+         * Apply after OpenLayers has inserted the control.
+         */
+
+        function positionScaleBar() {
+
+            var scaleElement = document.querySelector(
+                "#map .ol-scale-line"
+            );
+
+            if (scaleElement) {
+
+                scaleElement.style.setProperty(
+                    "position", "absolute", "important"
+                );
+
+                scaleElement.style.setProperty(
+                    "left", "20px", "important"
+                );
+
+                scaleElement.style.setProperty(
+                    "bottom", "20px", "important"
+                );
+
+                scaleElement.style.setProperty(
+                    "top", "auto", "important"
+                );
+
+                scaleElement.style.setProperty(
+                    "right", "auto", "important"
+                );
+
+                scaleElement.style.setProperty(
+                    "transform", "none", "important"
+                );
+
+                scaleElement.style.setProperty(
+                    "z-index", "9999", "important"
+                );
+
+            }
+
+        }
+
+
+        positionScaleBar();
 
         map.updateSize();
+
+        positionScaleBar();
+
+        map.once("rendercomplete", positionScaleBar);
 
         window.addEventListener("resize", function() {
 
             map.updateSize();
 
+            positionScaleBar();
+
         });
 
 
-        console.log("Yadgir Dashboard Initialized");
-
+        console.log("Yadgir GIS Dashboard Initialized");
         console.log("Original layers:", allLayers.length);
-
         console.log("Connected layers:", matchedLayers.length);
-
-        console.log("Scale bar added at bottom-left");
+        console.log("Scale bar position: Bottom Left");
 
     }
 
