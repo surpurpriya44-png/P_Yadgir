@@ -1,18 +1,22 @@
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yadgir District GIS Dashboard</title>
 
+    <title>Yadgir District | GIS Dashboard</title>
+
+    <!-- EXISTING QGIS2WEB CSS -->
     <link rel="stylesheet" href="./resources/ol.css">
     <link rel="stylesheet" href="resources/fontawesome-all.min.css">
-    <link href="resources/photon-geocoder-autocomplete.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="resources/photon-geocoder-autocomplete.min.css">
     <link rel="stylesheet" href="./resources/ol-layerswitcher.css">
     <link rel="stylesheet" href="./resources/qgis2web.css">
 
     <style>
+
         * {
             box-sizing: border-box;
         }
@@ -23,182 +27,326 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            font-family: Arial, sans-serif;
+            font-family: Arial, Helvetica, sans-serif;
         }
 
-        /* Main Dashboard */
+        /* MAIN DASHBOARD */
+
         #dashboard {
             display: flex;
             width: 100%;
             height: 100vh;
         }
 
-        /* Left Sidebar */
+        /* LEFT PANEL */
+
         #sidebar {
             width: 290px;
             min-width: 290px;
             height: 100%;
-            background: #102b46;
+            background: #142D46;
             color: white;
             overflow-y: auto;
             z-index: 1000;
-            box-shadow: 3px 0 12px rgba(0,0,0,0.2);
+            box-shadow: 3px 0 12px rgba(0,0,0,0.25);
         }
 
-        .header {
-            padding: 25px 20px;
-            background: #0b2035;
-            border-bottom: 3px solid #38bdf8;
+        .dashboard-header {
+            padding: 27px 20px 23px;
+            background: #0C2034;
+            border-bottom: 4px solid #25A8D5;
         }
 
-        .header h1 {
-            font-size: 22px;
-            margin: 0 0 8px;
-            line-height: 1.4;
+        .dashboard-header .subtitle {
+            font-size: 10px;
+            color: #5BC0E8;
+            letter-spacing: 2px;
+            font-weight: bold;
+            margin-bottom: 12px;
         }
 
-        .header p {
-            font-size: 13px;
-            color: #b9d4e8;
+        .dashboard-header h1 {
+            font-size: 23px;
+            line-height: 1.3;
             margin: 0;
+            color: #FFFFFF;
         }
 
-        .section {
-            padding: 18px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.15);
-        }
-
-        .section h3 {
+        .dashboard-header h2 {
             font-size: 15px;
-            margin: 0 0 15px;
-            color: #7dd3fc;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-weight: normal;
+            color: #C5D7E5;
+            margin: 5px 0 0;
         }
 
-        /* Layer Checkboxes */
-        .layer-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 13px 0;
-            font-size: 13px;
-            cursor: pointer;
-        }
-
-        .layer-item input {
-            accent-color: #38bdf8;
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
-        }
-
-        /* Basemap Buttons */
-        .basemap-btn {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 9px;
-            border: 1px solid #47718e;
-            border-radius: 5px;
-            background: #1c405e;
-            color: white;
-            cursor: pointer;
-            text-align: left;
-            font-size: 13px;
-        }
-
-        .basemap-btn:hover,
-        .basemap-btn.active {
-            background: #0284c7;
-            border-color: #38bdf8;
-        }
-
-        .footer {
-            padding: 15px 20px;
+        .dashboard-header .description {
+            margin-top: 17px;
             font-size: 11px;
-            color: #9bb9ce;
+            color: #A9C3D5;
             line-height: 1.6;
         }
 
-        /* Map */
-        #map-container {
-            position: relative;
+        /* SIDEBAR SECTIONS */
+
+        .panel-section {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .section-heading {
+            font-size: 12px;
+            font-weight: bold;
+            color: #65C9EC;
+            letter-spacing: 1.2px;
+            margin-bottom: 17px;
+            text-transform: uppercase;
+        }
+
+        /* LAYER CHECKBOXES */
+
+        #layer-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .layer-row {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            font-size: 13px;
+            color: #E8F0F5;
+            cursor: pointer;
+        }
+
+        .layer-row input {
+            width: 16px;
+            height: 16px;
+            accent-color: #28B5E5;
+            cursor: pointer;
+        }
+
+        .legend-symbol {
+            width: 13px;
+            height: 13px;
+            display: inline-block;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .legend-boundary {
+            background: transparent;
+            border: 2px solid #202020;
+        }
+
+        .legend-water {
+            background: #2589D1;
+        }
+
+        .legend-stream {
+            background: #63B8E8;
+            height: 3px;
+        }
+
+        .legend-roads {
+            background: #F0789D;
+            height: 3px;
+        }
+
+        .legend-railway {
+            background: #A78BFA;
+            height: 3px;
+        }
+
+        .legend-landuse {
+            background: #E6C74B;
+        }
+
+        .legend-buildings {
+            background: #9C8A79;
+        }
+
+        /* BASEMAP BUTTONS */
+
+        .basemap-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .basemap-btn {
+            width: 100%;
+            padding: 12px 13px;
+            background: #203F5B;
+            border: 1px solid #47647C;
+            border-radius: 5px;
+            color: #E7F0F6;
+            text-align: left;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .basemap-btn:hover {
+            background: #285A7C;
+        }
+
+        .basemap-btn.active {
+            background: #087EAF;
+            border-color: #55C8F0;
+            color: white;
+        }
+
+        .basemap-btn span {
+            margin-right: 9px;
+        }
+
+        /* SELECT ALL */
+
+        .layer-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 18px;
+        }
+
+        .layer-actions button {
             flex: 1;
-            height: 100%;
+            padding: 7px;
+            font-size: 11px;
+            border: 1px solid #57738B;
+            background: #203F5B;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .layer-actions button:hover {
+            background: #087EAF;
+        }
+
+        /* SIDEBAR FOOTER */
+
+        .sidebar-footer {
+            padding: 18px 20px;
+            color: #9CB7CA;
+            font-size: 11px;
+            line-height: 1.8;
+        }
+
+        /* MAP AREA */
+
+        #map-container {
+            flex: 1;
             min-width: 0;
+            height: 100%;
+            position: relative;
         }
 
         #map {
             width: 100%;
             height: 100%;
+            background: #E7E9E6;
         }
 
-        /* North Arrow */
+        /* NORTH ARROW */
+
         #north-arrow {
             position: absolute;
             top: 20px;
-            right: 25px;
-            z-index: 999;
-            background: rgba(255,255,255,0.95);
-            padding: 12px 15px;
-            border-radius: 8px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.25);
-            color: #102b46;
+            right: 23px;
+            z-index: 500;
+
+            background: rgba(255,255,255,0.96);
+            width: 58px;
+            height: 75px;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 7px;
+            box-shadow: 0 2px 9px rgba(0,0,0,0.25);
+        }
+
+        #north-arrow .north-label {
+            font-size: 14px;
             font-weight: bold;
+            color: #142D46;
         }
 
-        #north-arrow .arrow {
-            font-size: 32px;
-            line-height: 30px;
+        #north-arrow .north-symbol {
+            font-size: 37px;
+            line-height: 38px;
+            color: #142D46;
         }
 
-        /* Scale Bar */
+        /* SCALE BAR */
+
         .ol-scale-line {
             left: 20px !important;
-            bottom: 20px !important;
             right: auto !important;
-            background: rgba(16,43,70,0.85) !important;
-            padding: 7px 10px !important;
-            border-radius: 5px;
+            bottom: 20px !important;
+            background: rgba(15,43,65,0.85) !important;
+            padding: 8px 10px !important;
+            border-radius: 5px !important;
         }
 
         .ol-scale-line-inner {
             color: white !important;
             border-color: white !important;
-            font-size: 12px !important;
+            font-size: 11px !important;
         }
 
-        /* OpenLayers Controls */
-        .ol-control > * {
-            background-color: #ffffff !important;
-            color: #333333 !important;
-            border-radius: 4px !important;
-        }
+        /* OPENLAYERS CONTROLS */
 
         .ol-control {
             background: rgba(255,255,255,0.3) !important;
             padding: 3px !important;
         }
 
+        .ol-control > button {
+            background: #FFFFFF !important;
+            color: #243B50 !important;
+            border-radius: 4px !important;
+        }
+
+        .ol-control > button:hover {
+            background: #DCECF4 !important;
+        }
+
         .ol-attribution {
-            bottom: 5px;
-            right: 5px;
+            font-size: 10px !important;
         }
 
-        /* Mobile */
+        /* POPUP */
+
+        .ol-popup {
+            background: white;
+            border-radius: 7px;
+        }
+
+        /* MOBILE VIEW */
+
         @media(max-width: 700px) {
+
             #sidebar {
-                width: 220px;
-                min-width: 220px;
+                width: 225px;
+                min-width: 225px;
             }
 
-            .header h1 {
-                font-size: 18px;
+            .dashboard-header h1 {
+                font-size: 19px;
             }
+
+            .panel-section {
+                padding: 15px;
+            }
+
         }
+
     </style>
+
 </head>
 
 <body>
@@ -206,222 +354,599 @@
 <div id="dashboard">
 
     <!-- LEFT SIDEBAR -->
+
     <aside id="sidebar">
 
-        <div class="header">
+        <div class="dashboard-header">
+
+            <div class="subtitle">
+                GIS & REMOTE SENSING
+            </div>
+
             <h1>Yadgir District</h1>
-            <p>Karnataka, India</p>
-            <p style="margin-top:10px;">GIS-Based Spatial Information Dashboard</p>
+
+            <h2>Karnataka, India</h2>
+
+            <div class="description">
+                Geographic Information System<br>
+                Spatial Data Visualization Dashboard
+            </div>
+
         </div>
 
-        <!-- LEGEND AND LAYERS -->
-        <div class="section">
-            <h3><i class="fas fa-layer-group"></i> Map Layers</h3>
 
-            <label class="layer-item">
-                <input type="checkbox" id="layer-boundary" checked>
-                District Boundary
-            </label>
+        <!-- MAP LEGEND -->
 
-            <label class="layer-item">
-                <input type="checkbox" id="layer-water" checked>
-                Waterbodies
-            </label>
+        <div class="panel-section">
 
-            <label class="layer-item">
-                <input type="checkbox" id="layer-stream" checked>
-                Streams
-            </label>
+            <div class="section-heading">
+                <i class="fas fa-layer-group"></i>
+                &nbsp; Map Legend
+            </div>
 
-            <label class="layer-item">
-                <input type="checkbox" id="layer-roads" checked>
-                Roads
-            </label>
+            <div id="layer-list">
 
-            <label class="layer-item">
-                <input type="checkbox" id="layer-railway" checked>
-                Railway
-            </label>
+                <!-- Generated dynamically from qgis2web layers -->
 
-            <label class="layer-item">
-                <input type="checkbox" id="layer-landuse" checked>
-                Land Use
-            </label>
+            </div>
 
-            <label class="layer-item">
-                <input type="checkbox" id="layer-buildings" checked>
-                Buildings
-            </label>
+            <div class="layer-actions">
+
+                <button id="show-all">Select All</button>
+
+                <button id="hide-all">Clear All</button>
+
+            </div>
+
         </div>
+
 
         <!-- BASEMAPS -->
-        <div class="section">
-            <h3><i class="fas fa-map"></i> Base Maps</h3>
 
-            <button class="basemap-btn active" id="osm-btn">
-                <i class="fas fa-map-marked-alt"></i>
-                OpenStreetMap
-            </button>
+        <div class="panel-section">
 
-            <button class="basemap-btn" id="satellite-btn">
-                <i class="fas fa-globe"></i>
-                Satellite
-            </button>
-
-            <button class="basemap-btn" id="light-btn">
+            <div class="section-heading">
                 <i class="fas fa-map"></i>
-                CartoDB Light
-            </button>
+                &nbsp; Base Maps
+            </div>
+
+            <div class="basemap-buttons">
+
+                <button class="basemap-btn active" id="satellite-btn">
+                    <span>🌍</span> Satellite Imagery
+                </button>
+
+                <button class="basemap-btn" id="osm-btn">
+                    <span>🗺️</span> OpenStreetMap
+                </button>
+
+                <button class="basemap-btn" id="light-btn">
+                    <span>⬜</span> Light Map
+                </button>
+
+            </div>
+
         </div>
 
-        <div class="footer">
-            <hr style="border-color:#47718e;">
-            <b>GIS & Remote Sensing</b><br>
-            Spatial Data Visualization<br>
-            Yadgir District, Karnataka
+
+        <!-- FOOTER -->
+
+        <div class="sidebar-footer">
+
+            <hr style="border-color:#47647C;">
+
+            <b>YADGIR DISTRICT</b><br>
+
+            Karnataka, India<br>
+
+            GIS-Based Spatial Information
+
         </div>
 
     </aside>
 
-    <!-- MAP AREA -->
+
+    <!-- MAP -->
+
     <main id="map-container">
 
         <div id="map">
 
             <div id="popup" class="ol-popup">
-                <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+
+                <a href="#" id="popup-closer"
+                   class="ol-popup-closer"></a>
+
                 <div id="popup-content"></div>
+
             </div>
 
         </div>
 
+
         <!-- NORTH ARROW -->
+
         <div id="north-arrow">
-            <div>N</div>
-            <div class="arrow">↑</div>
+
+            <div class="north-label">N</div>
+
+            <div class="north-symbol">↑</div>
+
         </div>
 
     </main>
 
 </div>
 
+
 <!-- EXISTING QGIS2WEB SCRIPTS -->
+
 <script src="resources/qgis2web_expressions.js"></script>
+
 <script src="./resources/functions.js"></script>
+
 <script src="./resources/ol.js"></script>
+
 <script src="./resources/ol-layerswitcher.js"></script>
+
 <script src="resources/photon-geocoder-autocomplete.min.js"></script>
+
 <script src="resources/olms.js"></script>
 
+
+<!-- YOUR ORIGINAL LAYERS -->
+
 <script src="layers/buildings_2.js"></script>
+
 <script src="layers/Landuse_3.js"></script>
+
 <script src="layers/Railway_4.js"></script>
+
 <script src="layers/Roads_5.js"></script>
+
 <script src="layers/Stream_ydg_6.js"></script>
+
 <script src="layers/Waterbodies_1_7.js"></script>
+
 <script src="layers/Yadgir_Boundary_8.js"></script>
 
+
+<!-- ORIGINAL STYLES -->
+
 <script src="styles/buildings_2_style.js"></script>
+
 <script src="styles/Landuse_3_style.js"></script>
+
 <script src="styles/Railway_4_style.js"></script>
+
 <script src="styles/Roads_5_style.js"></script>
+
 <script src="styles/Stream_ydg_6_style.js"></script>
+
 <script src="styles/Waterbodies_1_7_style.js"></script>
+
 <script src="styles/Yadgir_Boundary_8_style.js"></script>
 
+
 <script src="./layers/layers.js"></script>
+
 <script src="./resources/Autolinker.min.js"></script>
+
 <script src="./resources/qgis2web.js"></script>
 
-<!-- DASHBOARD CONTROLS -->
+
+<!-- DASHBOARD FUNCTIONALITY -->
+
 <script>
 
-document.addEventListener("DOMContentLoaded", function() {
+(function () {
 
-    /*
-      The qgis2web script creates the map and layer objects.
-      Wait until they are available.
-    */
+    function initializeDashboard() {
 
-    setTimeout(function() {
+        // Wait for qgis2web map initialization
 
-        // Layer visibility controls
-        const layerControls = {
-            "layer-buildings": buildings_2,
-            "layer-landuse": Landuse_3,
-            "layer-railway": Railway_4,
-            "layer-roads": Roads_5,
-            "layer-stream": Stream_ydg_6,
-            "layer-water": Waterbodies_1_7,
-            "layer-boundary": Yadgir_Boundary_8
-        };
+        if (typeof map === "undefined" ||
+            typeof ol === "undefined") {
 
-        Object.keys(layerControls).forEach(function(id) {
+            setTimeout(initializeDashboard, 300);
+            return;
+        }
 
-            const checkbox = document.getElementById(id);
-            const layer = layerControls[id];
+        if (map.get("dashboardInitialized")) return;
 
-            if (checkbox && layer) {
+        map.set("dashboardInitialized", true);
 
-                checkbox.checked = layer.getVisible();
 
-                checkbox.addEventListener("change", function() {
-                    layer.setVisible(this.checked);
-                });
+        /* ==================================
+           1. GET ORIGINAL QGIS2WEB LAYERS
+        ================================== */
 
-            }
+        var originalLayers =
+            (typeof layersList !== "undefined")
+            ? layersList
+            : [];
+
+        var allLayers = originalLayers.filter(function(layer) {
+            return layer instanceof ol.layer.Base;
         });
 
-        // Add scale bar
-        map.addControl(new ol.control.ScaleLine({
-            units: "metric"
-        }));
 
-        // Basemap controls
-        const baseMaps = [
+        /* ==================================
+           2. FIND LAYERS BY THEIR NAMES
+        ================================== */
+
+        function getLayerName(layer) {
+
+            var values = [
+                layer.get("title"),
+                layer.get("name"),
+                layer.get("popuplayertitle"),
+                layer.get("displayName")
+            ];
+
+            return values.filter(Boolean).join(" ").toLowerCase();
+        }
+
+
+        var layerDefinitions = [
+
             {
-                id: "osm-btn",
-                layer: osmLayer
+                label: "District Boundary",
+                pattern: /yadgir.*boundary|boundary/,
+                symbol: "legend-boundary",
+                fallbackIndex: 6
             },
+
             {
-                id: "satellite-btn",
-                layer: googleSatellite
+                label: "Waterbodies",
+                pattern: /waterbod/,
+                symbol: "legend-water",
+                fallbackIndex: 5
             },
+
             {
-                id: "light-btn",
-                layer: cartoLight
+                label: "Streams",
+                pattern: /stream/,
+                symbol: "legend-stream",
+                fallbackIndex: 4
+            },
+
+            {
+                label: "Roads",
+                pattern: /roads?/,
+                symbol: "legend-roads",
+                fallbackIndex: 3
+            },
+
+            {
+                label: "Railway",
+                pattern: /railway/,
+                symbol: "legend-railway",
+                fallbackIndex: 2
+            },
+
+            {
+                label: "Land Use",
+                pattern: /landuse|land.use/,
+                symbol: "legend-landuse",
+                fallbackIndex: 1
+            },
+
+            {
+                label: "Buildings",
+                pattern: /buildings?/,
+                symbol: "legend-buildings",
+                fallbackIndex: 0
             }
+
         ];
 
-        baseMaps.forEach(function(item) {
 
-            const button = document.getElementById(item.id);
+        var matchedLayers = [];
+        var usedLayers = [];
 
-            if (!button || !item.layer) return;
 
-            button.addEventListener("click", function() {
+        layerDefinitions.forEach(function(definition) {
 
-                baseMaps.forEach(function(base) {
+            var layer = allLayers.find(function(item) {
 
-                    if (base.layer) {
-                        base.layer.setVisible(false);
-                    }
+                return !usedLayers.includes(item) &&
+                    definition.pattern.test(getLayerName(item));
 
-                    document.getElementById(base.id)
-                        .classList.remove("active");
+            });
 
+
+            // Fallback to the original exported layer order
+
+            if (!layer) {
+
+                layer = allLayers[definition.fallbackIndex];
+
+                if (usedLayers.includes(layer)) {
+                    layer = null;
+                }
+
+            }
+
+
+            if (layer) {
+
+                usedLayers.push(layer);
+
+                matchedLayers.push({
+                    label: definition.label,
+                    symbol: definition.symbol,
+                    layer: layer
                 });
 
+            }
+
+        });
+
+
+        /* ==================================
+           3. CREATE SIDEBAR LAYER CONTROLS
+        ================================== */
+
+        var layerList = document.getElementById("layer-list");
+
+
+        matchedLayers.forEach(function(item, index) {
+
+            var label = document.createElement("label");
+
+            label.className = "layer-row";
+
+
+            var checkbox = document.createElement("input");
+
+            checkbox.type = "checkbox";
+
+            checkbox.checked = item.layer.getVisible();
+
+
+            checkbox.addEventListener("change", function() {
+
+                item.layer.setVisible(checkbox.checked);
+
+            });
+
+
+            var symbol = document.createElement("span");
+
+            symbol.className =
+                "legend-symbol " + item.symbol;
+
+
+            var name = document.createElement("span");
+
+            name.textContent = item.label;
+
+
+            label.appendChild(checkbox);
+
+            label.appendChild(symbol);
+
+            label.appendChild(name);
+
+
+            layerList.appendChild(label);
+
+        });
+
+
+        /* ==================================
+           4. SELECT ALL / CLEAR ALL
+        ================================== */
+
+        document.getElementById("show-all")
+        .addEventListener("click", function() {
+
+            matchedLayers.forEach(function(item) {
+
                 item.layer.setVisible(true);
-                button.classList.add("active");
+
+                item.checkbox = true;
+
+            });
+
+            layerList.querySelectorAll("input")
+            .forEach(function(input) {
+
+                input.checked = true;
 
             });
 
         });
 
-    }, 1000);
 
-});
+        document.getElementById("hide-all")
+        .addEventListener("click", function() {
+
+            matchedLayers.forEach(function(item) {
+
+                item.layer.setVisible(false);
+
+            });
+
+            layerList.querySelectorAll("input")
+            .forEach(function(input) {
+
+                input.checked = false;
+
+            });
+
+        });
+
+
+        /* ==================================
+           5. CREATE BASEMAPS
+        ================================== */
+
+        var satellite = new ol.layer.Tile({
+
+            source: new ol.source.XYZ({
+
+                url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+
+                attributions:
+                'Tiles © Esri'
+
+            }),
+
+            visible: true
+
+        });
+
+
+        var osm = new ol.layer.Tile({
+
+            source: new ol.source.OSM(),
+
+            visible: false
+
+        });
+
+
+        var light = new ol.layer.Tile({
+
+            source: new ol.source.XYZ({
+
+                url: "https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+
+                attributions:
+                '© OpenStreetMap contributors © CARTO'
+
+            }),
+
+            visible: false
+
+        });
+
+
+        /*
+          Insert basemaps at the bottom of the map layer stack.
+          Original vector layers remain above the basemaps.
+        */
+
+        map.getLayers().insertAt(0, satellite);
+
+        map.getLayers().insertAt(0, osm);
+
+        map.getLayers().insertAt(0, light);
+
+
+        /* ==================================
+           6. BASEMAP BUTTON FUNCTION
+        ================================== */
+
+        var basemapOptions = [
+
+            {
+                id: "satellite-btn",
+                layer: satellite
+            },
+
+            {
+                id: "osm-btn",
+                layer: osm
+            },
+
+            {
+                id: "light-btn",
+                layer: light
+            }
+
+        ];
+
+
+        basemapOptions.forEach(function(option) {
+
+            document.getElementById(option.id)
+            .addEventListener("click", function() {
+
+
+                basemapOptions.forEach(function(base) {
+
+                    base.layer.setVisible(false);
+
+                    document.getElementById(base.id)
+                    .classList.remove("active");
+
+                });
+
+
+                option.layer.setVisible(true);
+
+                document.getElementById(option.id)
+                .classList.add("active");
+
+
+            });
+
+        });
+
+
+        /* ==================================
+           7. ADD SCALE BAR
+        ================================== */
+
+        map.addControl(
+
+            new ol.control.ScaleLine({
+
+                units: "metric",
+
+                bar: false,
+
+                text: true,
+
+                minWidth: 100
+
+            })
+
+        );
+
+
+        /* ==================================
+           8. UPDATE MAP SIZE
+        ================================== */
+
+        map.updateSize();
+
+
+        window.addEventListener("resize", function() {
+
+            map.updateSize();
+
+        });
+
+
+        console.log("Yadgir GIS Dashboard Initialized");
+
+        console.log("Original layers detected:", allLayers.length);
+
+        console.log("Layers connected:", matchedLayers.length);
+
+    }
+
+
+    // Start dashboard after page loading
+
+    if (document.readyState === "loading") {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            initializeDashboard
+        );
+
+    } else {
+
+        initializeDashboard();
+
+    }
+
+})();
 
 </script>
 
