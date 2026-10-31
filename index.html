@@ -3,7 +3,7 @@
 
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <title>Yadgir District GIS Dashboard</title>
 
@@ -19,6 +19,7 @@
 
 * {
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
 }
 
 html, body {
@@ -28,15 +29,36 @@ html, body {
     height: 100%;
     overflow: hidden;
     font-family: Arial, Helvetica, sans-serif;
+    position: fixed;
 }
 
 #dashboard {
     display: flex;
     width: 100%;
-    height: 100vh;
+    height: 100%;
+    position: relative;
 }
 
-/* LEFT SIDEBAR */
+/* MOBILE TOGGLE BUTTON */
+
+#mobile-menu-btn {
+    display: none;
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    z-index: 1100;
+    background: #142D46;
+    color: white;
+    border: 2px solid #25A8D5;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+}
+
+/* SIDEBAR */
 
 #sidebar {
     width: 290px;
@@ -45,8 +67,22 @@ html, body {
     background: #142D46;
     color: white;
     overflow-y: auto;
-    z-index: 1000;
+    z-index: 1200;
     box-shadow: 3px 0 12px rgba(0,0,0,0.25);
+    transition: transform 0.3s ease-in-out;
+}
+
+/* SIDEBAR CLOSE BUTTON (MOBILE ONLY) */
+
+#sidebar-close-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: #A9C3D5;
+    font-size: 20px;
+    float: right;
+    cursor: pointer;
+    line-height: 1;
 }
 
 /* HEADER */
@@ -66,21 +102,21 @@ html, body {
 }
 
 .dashboard-header h1 {
-    font-size: 23px;
+    font-size: 22px;
     line-height: 1.3;
     margin: 0;
     color: white;
 }
 
 .dashboard-header h2 {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: normal;
     color: #C5D7E5;
     margin: 5px 0 0;
 }
 
 .dashboard-header .description {
-    margin-top: 17px;
+    margin-top: 15px;
     font-size: 11px;
     color: #A9C3D5;
     line-height: 1.6;
@@ -89,7 +125,7 @@ html, body {
 /* SIDEBAR SECTIONS */
 
 .panel-section {
-    padding: 20px;
+    padding: 18px 20px;
     border-bottom: 1px solid rgba(255,255,255,0.12);
 }
 
@@ -98,7 +134,7 @@ html, body {
     font-weight: bold;
     color: #65C9EC;
     letter-spacing: 1.2px;
-    margin-bottom: 17px;
+    margin-bottom: 15px;
     text-transform: uppercase;
 }
 
@@ -107,7 +143,7 @@ html, body {
 #layer-list {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 14px;
 }
 
 .layer-row {
@@ -120,8 +156,8 @@ html, body {
 }
 
 .layer-row input {
-    width: 16px;
-    height: 16px;
+    width: 17px;
+    height: 17px;
     accent-color: #28B5E5;
     cursor: pointer;
 }
@@ -171,7 +207,7 @@ html, body {
 .layer-actions {
     display: flex;
     gap: 8px;
-    margin-top: 18px;
+    margin-top: 16px;
 }
 
 .layer-actions button {
@@ -199,7 +235,7 @@ html, body {
 
 .basemap-btn {
     width: 100%;
-    padding: 12px 13px;
+    padding: 11px 13px;
     background: #203F5B;
     border: 1px solid #47647C;
     border-radius: 5px;
@@ -248,16 +284,29 @@ html, body {
     background: #E7E9E6;
 }
 
+/* OVERLAY BACKDROP FOR MOBILE */
+
+#sidebar-backdrop {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.45);
+    z-index: 1150;
+}
+
 /* NORTH ARROW */
 
 #north-arrow {
     position: absolute;
-    top: 20px;
-    right: 23px;
+    top: 15px;
+    right: 15px;
     z-index: 500;
     background: rgba(255,255,255,0.96);
-    width: 58px;
-    height: 75px;
+    width: 48px;
+    height: 64px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -267,14 +316,14 @@ html, body {
 }
 
 .north-label {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: bold;
     color: #142D46;
 }
 
 .north-symbol {
-    font-size: 37px;
-    line-height: 38px;
+    font-size: 30px;
+    line-height: 32px;
     color: #142D46;
 }
 
@@ -292,7 +341,6 @@ html, body {
     pointer-events: auto;
 }
 
-/* Force any and all scale elements to bottom-left */
 .ol-scale-line,
 .ol-scale-bar,
 #map .ol-scale-line,
@@ -308,8 +356,8 @@ div[class*="scale"] {
 .ol-scale-line,
 #custom-scale-target .ol-scale-line {
     position: absolute !important;
-    background: rgba(255, 255, 255, 0.9) !important;
-    padding: 4px 8px !important;
+    background: rgba(255, 255, 255, 0.92) !important;
+    padding: 3px 6px !important;
     border-radius: 4px !important;
     box-shadow: 0 1px 5px rgba(0,0,0,0.3) !important;
     border: 1px solid rgba(0,0,0,0.2) !important;
@@ -319,7 +367,7 @@ div[class*="scale"] {
     border: 2px solid #142D46 !important;
     border-top: none !important;
     color: #142D46 !important;
-    font-size: 11px !important;
+    font-size: 10px !important;
     font-weight: bold !important;
     text-align: center !important;
 }
@@ -327,15 +375,6 @@ div[class*="scale"] {
 /* Hide extra overlapping scale text on top-left */
 #map > div:not(#north-arrow):not(.ol-viewport):not(#popup):not(#custom-scale-target) {
     display: none !important;
-}
-
-/* Ensure zoom controls stay cleanly on top left without scale overlap */
-#map .ol-zoom {
-    top: 15px !important;
-    left: 15px !important;
-    bottom: auto !important;
-    right: auto !important;
-    z-index: 400 !important;
 }
 
 /* QGIS ATTRIBUTION (BOTTOM-RIGHT) */
@@ -346,13 +385,20 @@ div[class*="scale"] {
     left: auto !important;
     top: auto !important;
     z-index: 1000 !important;
-    font-size: 10px !important;
+    font-size: 9px !important;
 }
 
-/* OPENLAYERS CONTROLS */
+/* ZOOM BUTTONS */
+#map .ol-zoom {
+    top: 65px !important;
+    left: 15px !important;
+    bottom: auto !important;
+    right: auto !important;
+    z-index: 400 !important;
+}
 
 .ol-control {
-    background: rgba(255,255,255,0.3) !important;
+    background: rgba(255,255,255,0.4) !important;
     padding: 3px !important;
 }
 
@@ -362,10 +408,6 @@ div[class*="scale"] {
     border-radius: 4px !important;
 }
 
-.ol-control > button:hover {
-    background: #DCECF4 !important;
-}
-
 /* POPUP */
 
 .ol-popup {
@@ -373,20 +415,53 @@ div[class*="scale"] {
     border-radius: 7px;
 }
 
-/* RESPONSIVE */
+/* ==========================================================================
+   MOBILE RESPONSIVE RULES (PHONES)
+   ========================================================================== */
 
-@media(max-width: 700px) {
+@media (max-width: 768px) {
+    #mobile-menu-btn {
+        display: block;
+    }
+
+    #sidebar-close-btn {
+        display: block;
+    }
+
     #sidebar {
-        width: 225px;
-        min-width: 225px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 82%;
+        max-width: 320px;
+        min-width: 260px;
+        transform: translateX(-100%);
     }
 
-    .dashboard-header h1 {
-        font-size: 19px;
+    #sidebar.open {
+        transform: translateX(0);
     }
 
-    .panel-section {
-        padding: 15px;
+    #sidebar-backdrop.active {
+        display: block;
+    }
+
+    #map .ol-zoom {
+        top: 60px !important;
+        left: 12px !important;
+    }
+
+    #custom-scale-target {
+        left: 10px !important;
+        bottom: 8px !important;
+    }
+
+    #map .ol-attribution {
+        max-width: 55%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 }
 
@@ -397,12 +472,19 @@ div[class*="scale"] {
 
 <div id="dashboard">
 
-    <!-- LEFT SIDEBAR -->
+    <!-- FLOATING MOBILE MENU BUTTON -->
+    <button id="mobile-menu-btn">
+        <i class="fas fa-bars"></i> &nbsp;Layers / Menu
+    </button>
 
+    <!-- BACKDROP FOR MOBILE CLICK-OUTSIDE -->
+    <div id="sidebar-backdrop"></div>
+
+    <!-- LEFT SIDEBAR -->
     <aside id="sidebar">
 
         <div class="dashboard-header">
-
+            <button id="sidebar-close-btn" aria-label="Close Sidebar">&times;</button>
             <div class="subtitle">
                 GIS & REMOTE SENSING
             </div>
@@ -419,7 +501,6 @@ div[class*="scale"] {
         </div>
 
         <!-- MAP LEGEND -->
-
         <div class="panel-section">
 
             <div class="section-heading">
@@ -430,17 +511,13 @@ div[class*="scale"] {
             <div id="layer-list"></div>
 
             <div class="layer-actions">
-
                 <button id="show-all">Select All</button>
-
                 <button id="hide-all">Clear All</button>
-
             </div>
 
         </div>
 
         <!-- BASEMAPS -->
-
         <div class="panel-section">
 
             <div class="section-heading">
@@ -467,21 +544,16 @@ div[class*="scale"] {
         </div>
 
         <!-- FOOTER -->
-
         <div class="sidebar-footer">
-
             <hr style="border-color:#47647C;">
-
             <b>YADGIR DISTRICT</b><br>
             Karnataka, India<br>
             GIS-Based Spatial Information
-
         </div>
 
     </aside>
 
     <!-- MAP AREA -->
-
     <main id="map-container">
 
         <div id="map">
@@ -490,24 +562,16 @@ div[class*="scale"] {
             <div id="custom-scale-target"></div>
 
             <div id="popup" class="ol-popup">
-
-                <a href="#" id="popup-closer"
-                   class="ol-popup-closer"></a>
-
+                <a href="#" id="popup-closer" class="ol-popup-closer"></a>
                 <div id="popup-content"></div>
-
             </div>
 
         </div>
 
         <!-- NORTH ARROW -->
-
         <div id="north-arrow">
-
             <div class="north-label">N</div>
-
             <div class="north-symbol">↑</div>
-
         </div>
 
     </main>
@@ -516,7 +580,6 @@ div[class*="scale"] {
 
 
 <!-- QGIS2WEB SCRIPTS -->
-
 <script src="resources/qgis2web_expressions.js"></script>
 <script src="./resources/functions.js"></script>
 <script src="./resources/ol.js"></script>
@@ -524,9 +587,7 @@ div[class*="scale"] {
 <script src="resources/photon-geocoder-autocomplete.min.js"></script>
 <script src="resources/olms.js"></script>
 
-
 <!-- ORIGINAL MAP LAYERS -->
-
 <script src="layers/buildings_2.js"></script>
 <script src="layers/Landuse_3.js"></script>
 <script src="layers/Railway_4.js"></script>
@@ -535,9 +596,7 @@ div[class*="scale"] {
 <script src="layers/Waterbodies_1_7.js"></script>
 <script src="layers/Yadgir_Boundary_8.js"></script>
 
-
 <!-- ORIGINAL STYLES -->
-
 <script src="styles/buildings_2_style.js"></script>
 <script src="styles/Landuse_3_style.js"></script>
 <script src="styles/Railway_4_style.js"></script>
@@ -546,16 +605,12 @@ div[class*="scale"] {
 <script src="styles/Waterbodies_1_7_style.js"></script>
 <script src="styles/Yadgir_Boundary_8_style.js"></script>
 
-
 <script src="./layers/layers.js"></script>
 <script src="./resources/Autolinker.min.js"></script>
 <script src="./resources/qgis2web.js"></script>
 
-
 <!-- DASHBOARD JAVASCRIPT -->
-
 <script>
-
 (function () {
 
     function initializeDashboard() {
@@ -569,332 +624,157 @@ div[class*="scale"] {
         }
 
         if (map.get("dashboardInitialized")) return;
-
         map.set("dashboardInitialized", true);
 
-
         /* 1. ORIGINAL LAYERS */
-
-        var originalLayers =
-            (typeof layersList !== "undefined")
-            ? layersList
-            : [];
-
+        var originalLayers = (typeof layersList !== "undefined") ? layersList : [];
         var allLayers = originalLayers.filter(function(layer) {
             return layer instanceof ol.layer.Base;
         });
 
-
         /* 2. LAYER DEFINITIONS */
-
         var definitions = [
-
-            {
-                label: "District Boundary",
-                pattern: /yadgir.*boundary|boundary/,
-                symbol: "legend-boundary",
-                index: 6
-            },
-
-            {
-                label: "Waterbodies",
-                pattern: /waterbod/,
-                symbol: "legend-water",
-                index: 5
-            },
-
-            {
-                label: "Streams",
-                pattern: /stream/,
-                symbol: "legend-stream",
-                index: 4
-            },
-
-            {
-                label: "Roads",
-                pattern: /roads?/,
-                symbol: "legend-roads",
-                index: 3
-            },
-
-            {
-                label: "Railway",
-                pattern: /railway/,
-                symbol: "legend-railway",
-                index: 2
-            },
-
-            {
-                label: "Land Use",
-                pattern: /landuse|land.use/,
-                symbol: "legend-landuse",
-                index: 1
-            },
-
-            {
-                label: "Buildings",
-                pattern: /buildings?/,
-                symbol: "legend-buildings",
-                index: 0
-            }
-
+            { label: "District Boundary", pattern: /yadgir.*boundary|boundary/, symbol: "legend-boundary", index: 6 },
+            { label: "Waterbodies", pattern: /waterbod/, symbol: "legend-water", index: 5 },
+            { label: "Streams", pattern: /stream/, symbol: "legend-stream", index: 4 },
+            { label: "Roads", pattern: /roads?/, symbol: "legend-roads", index: 3 },
+            { label: "Railway", pattern: /railway/, symbol: "legend-railway", index: 2 },
+            { label: "Land Use", pattern: /landuse|land.use/, symbol: "legend-landuse", index: 1 },
+            { label: "Buildings", pattern: /buildings?/, symbol: "legend-buildings", index: 0 }
         ];
 
-
         function getLayerName(layer) {
-
             return [
                 layer.get("title"),
                 layer.get("name"),
                 layer.get("popuplayertitle"),
                 layer.get("displayName")
             ].filter(Boolean).join(" ").toLowerCase();
-
         }
-
 
         var matchedLayers = [];
         var usedLayers = [];
 
-
         definitions.forEach(function(definition) {
-
             var layer = allLayers.find(function(item) {
-
-                return !usedLayers.includes(item) &&
-                    definition.pattern.test(getLayerName(item));
-
+                return !usedLayers.includes(item) && definition.pattern.test(getLayerName(item));
             });
 
-
             if (!layer) {
-
                 var candidate = allLayers[definition.index];
-
                 if (candidate && !usedLayers.includes(candidate)) {
                     layer = candidate;
                 }
-
             }
 
-
             if (layer) {
-
                 usedLayers.push(layer);
-
                 matchedLayers.push({
                     label: definition.label,
                     symbol: definition.symbol,
                     layer: layer
                 });
-
             }
-
         });
 
-
         /* 3. CREATE LEGEND */
-
         var layerList = document.getElementById("layer-list");
 
-
         matchedLayers.forEach(function(item) {
-
             var label = document.createElement("label");
-
             label.className = "layer-row";
 
-
             var checkbox = document.createElement("input");
-
             checkbox.type = "checkbox";
             checkbox.checked = item.layer.getVisible();
 
-
             checkbox.addEventListener("change", function() {
-
                 item.layer.setVisible(this.checked);
-
             });
 
-
             var symbol = document.createElement("span");
-
-            symbol.className =
-                "legend-symbol " + item.symbol;
-
+            symbol.className = "legend-symbol " + item.symbol;
 
             var name = document.createElement("span");
-
             name.textContent = item.label;
-
 
             label.appendChild(checkbox);
             label.appendChild(symbol);
             label.appendChild(name);
-
             layerList.appendChild(label);
-
         });
-
 
         /* 4. SELECT ALL */
-
-        document.getElementById("show-all")
-        .addEventListener("click", function() {
-
+        document.getElementById("show-all").addEventListener("click", function() {
             matchedLayers.forEach(function(item) {
-
                 item.layer.setVisible(true);
-
             });
-
-            layerList.querySelectorAll("input")
-            .forEach(function(input) {
-
+            layerList.querySelectorAll("input").forEach(function(input) {
                 input.checked = true;
-
             });
-
         });
-
 
         /* 5. CLEAR ALL */
-
-        document.getElementById("hide-all")
-        .addEventListener("click", function() {
-
+        document.getElementById("hide-all").addEventListener("click", function() {
             matchedLayers.forEach(function(item) {
-
                 item.layer.setVisible(false);
-
             });
-
-            layerList.querySelectorAll("input")
-            .forEach(function(input) {
-
+            layerList.querySelectorAll("input").forEach(function(input) {
                 input.checked = false;
-
             });
-
         });
 
-
         /* 6. BASEMAPS */
-
         allLayers.forEach(function(layer) {
-
             if (layer instanceof ol.layer.Tile) {
                 layer.setVisible(false);
             }
-
         });
-
-
-        // SATELLITE
 
         var satellite = new ol.layer.Tile({
-
             source: new ol.source.XYZ({
-
-                url:
-                "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-
+                url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
                 attributions: "Tiles © Esri"
-
             }),
-
             visible: true
-
         });
-
-
-        // OPENSTREETMAP
 
         var osm = new ol.layer.Tile({
-
             source: new ol.source.OSM(),
-
             visible: false
-
         });
-
-
-        // LIGHT MAP
 
         var light = new ol.layer.Tile({
-
             source: new ol.source.XYZ({
-
-                url:
-                "https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
-
-                attributions:
-                "© OpenStreetMap contributors © CARTO"
-
+                url: "https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+                attributions: "© OpenStreetMap contributors © CARTO"
             }),
-
             visible: false
-
         });
-
-
-        // INSERT BASEMAPS BELOW VECTOR LAYERS
 
         map.getLayers().insertAt(0, satellite);
         map.getLayers().insertAt(0, osm);
         map.getLayers().insertAt(0, light);
 
-
         /* 7. BASEMAP SWITCHING */
-
         var basemapOptions = [
-
-            {
-                id: "satellite-btn",
-                layer: satellite
-            },
-
-            {
-                id: "osm-btn",
-                layer: osm
-            },
-
-            {
-                id: "light-btn",
-                layer: light
-            }
-
+            { id: "satellite-btn", layer: satellite },
+            { id: "osm-btn", layer: osm },
+            { id: "light-btn", layer: light }
         ];
 
-
         basemapOptions.forEach(function(option) {
-
-            document.getElementById(option.id)
-            .addEventListener("click", function() {
-
+            document.getElementById(option.id).addEventListener("click", function() {
                 basemapOptions.forEach(function(base) {
-
                     base.layer.setVisible(false);
-
-                    document.getElementById(base.id)
-                    .classList.remove("active");
-
+                    document.getElementById(base.id).classList.remove("active");
                 });
-
                 option.layer.setVisible(true);
-
-                document.getElementById(option.id)
-                .classList.add("active");
-
+                document.getElementById(option.id).classList.add("active");
             });
-
         });
 
-
-        /* 8. SCALE BAR - EXPLICIT TARGET POSITIONING */
-
-        // Remove any old scale controls created by qgis2web to avoid duplicates
+        /* 8. SCALE BAR SETUP */
         var controlsToRemove = [];
         map.getControls().forEach(function(c) {
             if (c instanceof ol.control.ScaleLine) {
@@ -905,47 +785,52 @@ div[class*="scale"] {
             map.removeControl(c);
         });
 
-        // Target container strictly at bottom-left
         var scaleTarget = document.getElementById("custom-scale-target");
-
         var cleanScaleBar = new ol.control.ScaleLine({
             units: "metric",
             bar: false,
             text: false,
-            minWidth: 100,
+            minWidth: 90,
             target: scaleTarget
         });
-
         map.addControl(cleanScaleBar);
 
-        // Move any dynamically created scale elements to the bottom-left container
-        function attachScaleBarToBottom() {
-            var strayScales = document.querySelectorAll('.ol-scale-line:not(#custom-scale-target .ol-scale-line), .ol-scale-bar');
-            strayScales.forEach(function(el) {
-                if (el.parentNode !== scaleTarget) {
-                    scaleTarget.appendChild(el);
-                }
-            });
+        /* 9. MOBILE DRAWER INTERACTION */
+        var sidebar = document.getElementById("sidebar");
+        var menuBtn = document.getElementById("mobile-menu-btn");
+        var closeBtn = document.getElementById("sidebar-close-btn");
+        var backdrop = document.getElementById("sidebar-backdrop");
+
+        function openSidebar() {
+            sidebar.classList.add("open");
+            backdrop.classList.add("active");
         }
 
-        attachScaleBarToBottom();
-        map.on("rendercomplete", attachScaleBarToBottom);
+        function closeSidebar() {
+            sidebar.classList.remove("open");
+            backdrop.classList.remove("active");
+        }
 
-        console.log("Scale bar placed strictly in the bottom-left opposite to attribution text.");
+        menuBtn.addEventListener("click", openSidebar);
+        closeBtn.addEventListener("click", closeSidebar);
+        backdrop.addEventListener("click", closeSidebar);
+
+        window.addEventListener("resize", function() {
+            map.updateSize();
+            if (window.innerWidth > 768) {
+                closeSidebar();
+            }
+        });
+
+        map.updateSize();
     }
 
-
     if (document.readyState === "loading") {
-        document.addEventListener(
-            "DOMContentLoaded",
-            initializeDashboard
-        );
+        document.addEventListener("DOMContentLoaded", initializeDashboard);
     } else {
         initializeDashboard();
     }
-
 })();
-
 </script>
 
 </body>
