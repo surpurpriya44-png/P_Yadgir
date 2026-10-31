@@ -3,349 +3,366 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Yadgir District | GIS Dashboard</title>
-
-    <!-- EXISTING QGIS2WEB CSS -->
-    <link rel="stylesheet" href="./resources/ol.css">
-    <link rel="stylesheet" href="resources/fontawesome-all.min.css">
-    <link rel="stylesheet" href="resources/photon-geocoder-autocomplete.min.css">
-    <link rel="stylesheet" href="./resources/ol-layerswitcher.css">
-    <link rel="stylesheet" href="./resources/qgis2web.css">
-
-    <style>
-
-        * {
-            box-sizing: border-box;
-        }
-
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            font-family: Arial, Helvetica, sans-serif;
-        }
-
-        /* MAIN DASHBOARD */
-
-        #dashboard {
-            display: flex;
-            width: 100%;
-            height: 100vh;
-        }
-
-        /* LEFT PANEL */
-
-        #sidebar {
-            width: 290px;
-            min-width: 290px;
-            height: 100%;
-            background: #142D46;
-            color: white;
-            overflow-y: auto;
-            z-index: 1000;
-            box-shadow: 3px 0 12px rgba(0,0,0,0.25);
-        }
-
-        .dashboard-header {
-            padding: 27px 20px 23px;
-            background: #0C2034;
-            border-bottom: 4px solid #25A8D5;
-        }
-
-        .dashboard-header .subtitle {
-            font-size: 10px;
-            color: #5BC0E8;
-            letter-spacing: 2px;
-            font-weight: bold;
-            margin-bottom: 12px;
-        }
-
-        .dashboard-header h1 {
-            font-size: 23px;
-            line-height: 1.3;
-            margin: 0;
-            color: #FFFFFF;
-        }
-
-        .dashboard-header h2 {
-            font-size: 15px;
-            font-weight: normal;
-            color: #C5D7E5;
-            margin: 5px 0 0;
-        }
-
-        .dashboard-header .description {
-            margin-top: 17px;
-            font-size: 11px;
-            color: #A9C3D5;
-            line-height: 1.6;
-        }
-
-        /* SIDEBAR SECTIONS */
-
-        .panel-section {
-            padding: 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.12);
-        }
-
-        .section-heading {
-            font-size: 12px;
-            font-weight: bold;
-            color: #65C9EC;
-            letter-spacing: 1.2px;
-            margin-bottom: 17px;
-            text-transform: uppercase;
-        }
-
-        /* LAYER CHECKBOXES */
-
-        #layer-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .layer-row {
-            display: flex;
-            align-items: center;
-            gap: 11px;
-            font-size: 13px;
-            color: #E8F0F5;
-            cursor: pointer;
-        }
-
-        .layer-row input {
-            width: 16px;
-            height: 16px;
-            accent-color: #28B5E5;
-            cursor: pointer;
-        }
-
-        .legend-symbol {
-            width: 13px;
-            height: 13px;
-            display: inline-block;
-            border-radius: 2px;
-            flex-shrink: 0;
-        }
-
-        .legend-boundary {
-            background: transparent;
-            border: 2px solid #202020;
-        }
-
-        .legend-water {
-            background: #2589D1;
-        }
-
-        .legend-stream {
-            background: #63B8E8;
-            height: 3px;
-        }
-
-        .legend-roads {
-            background: #F0789D;
-            height: 3px;
-        }
-
-        .legend-railway {
-            background: #A78BFA;
-            height: 3px;
-        }
-
-        .legend-landuse {
-            background: #E6C74B;
-        }
-
-        .legend-buildings {
-            background: #9C8A79;
-        }
-
-        /* BASEMAP BUTTONS */
-
-        .basemap-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .basemap-btn {
-            width: 100%;
-            padding: 12px 13px;
-            background: #203F5B;
-            border: 1px solid #47647C;
-            border-radius: 5px;
-            color: #E7F0F6;
-            text-align: left;
-            cursor: pointer;
-            font-size: 13px;
-            transition: 0.2s;
-        }
-
-        .basemap-btn:hover {
-            background: #285A7C;
-        }
-
-        .basemap-btn.active {
-            background: #087EAF;
-            border-color: #55C8F0;
-            color: white;
-        }
-
-        .basemap-btn span {
-            margin-right: 9px;
-        }
-
-        /* SELECT ALL */
-
-        .layer-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 18px;
-        }
-
-        .layer-actions button {
-            flex: 1;
-            padding: 7px;
-            font-size: 11px;
-            border: 1px solid #57738B;
-            background: #203F5B;
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .layer-actions button:hover {
-            background: #087EAF;
-        }
-
-        /* SIDEBAR FOOTER */
-
-        .sidebar-footer {
-            padding: 18px 20px;
-            color: #9CB7CA;
-            font-size: 11px;
-            line-height: 1.8;
-        }
-
-        /* MAP AREA */
-
-        #map-container {
-            flex: 1;
-            min-width: 0;
-            height: 100%;
-            position: relative;
-        }
-
-        #map {
-            width: 100%;
-            height: 100%;
-            background: #E7E9E6;
-        }
-
-        /* NORTH ARROW */
-
-        #north-arrow {
-            position: absolute;
-            top: 20px;
-            right: 23px;
-            z-index: 500;
-
-            background: rgba(255,255,255,0.96);
-            width: 58px;
-            height: 75px;
-
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 7px;
-            box-shadow: 0 2px 9px rgba(0,0,0,0.25);
-        }
-
-        #north-arrow .north-label {
-            font-size: 14px;
-            font-weight: bold;
-            color: #142D46;
-        }
-
-        #north-arrow .north-symbol {
-            font-size: 37px;
-            line-height: 38px;
-            color: #142D46;
-        }
-
-        /* SCALE BAR */
-
-        .ol-scale-line {
-            left: 20px !important;
-            right: auto !important;
-            bottom: 20px !important;
-            background: rgba(15,43,65,0.85) !important;
-            padding: 8px 10px !important;
-            border-radius: 5px !important;
-        }
-
-        .ol-scale-line-inner {
-            color: white !important;
-            border-color: white !important;
-            font-size: 11px !important;
-        }
-
-        /* OPENLAYERS CONTROLS */
-
-        .ol-control {
-            background: rgba(255,255,255,0.3) !important;
-            padding: 3px !important;
-        }
-
-        .ol-control > button {
-            background: #FFFFFF !important;
-            color: #243B50 !important;
-            border-radius: 4px !important;
-        }
-
-        .ol-control > button:hover {
-            background: #DCECF4 !important;
-        }
-
-        .ol-attribution {
-            font-size: 10px !important;
-        }
-
-        /* POPUP */
-
-        .ol-popup {
-            background: white;
-            border-radius: 7px;
-        }
-
-        /* MOBILE VIEW */
-
-        @media(max-width: 700px) {
-
-            #sidebar {
-                width: 225px;
-                min-width: 225px;
-            }
-
-            .dashboard-header h1 {
-                font-size: 19px;
-            }
-
-            .panel-section {
-                padding: 15px;
-            }
-
-        }
-
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Yadgir District GIS Dashboard</title>
+
+<!-- QGIS2WEB CSS -->
+<link rel="stylesheet" href="./resources/ol.css">
+<link rel="stylesheet" href="resources/fontawesome-all.min.css">
+<link rel="stylesheet" href="resources/photon-geocoder-autocomplete.min.css">
+<link rel="stylesheet" href="./resources/ol-layerswitcher.css">
+<link rel="stylesheet" href="./resources/qgis2web.css">
+
+<style>
+
+/* GENERAL */
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* DASHBOARD */
+
+#dashboard {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+}
+
+/* LEFT PANEL */
+
+#sidebar {
+    width: 290px;
+    min-width: 290px;
+    height: 100%;
+    background: #142D46;
+    color: white;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 3px 0 12px rgba(0,0,0,0.25);
+}
+
+/* HEADER */
+
+.dashboard-header {
+    padding: 27px 20px 23px;
+    background: #0C2034;
+    border-bottom: 4px solid #25A8D5;
+}
+
+.dashboard-header .subtitle {
+    font-size: 10px;
+    color: #5BC0E8;
+    letter-spacing: 2px;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.dashboard-header h1 {
+    font-size: 23px;
+    line-height: 1.3;
+    margin: 0;
+    color: white;
+}
+
+.dashboard-header h2 {
+    font-size: 15px;
+    font-weight: normal;
+    color: #C5D7E5;
+    margin: 5px 0 0;
+}
+
+.dashboard-header .description {
+    margin-top: 17px;
+    font-size: 11px;
+    color: #A9C3D5;
+    line-height: 1.6;
+}
+
+/* SIDEBAR SECTIONS */
+
+.panel-section {
+    padding: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+.section-heading {
+    font-size: 12px;
+    font-weight: bold;
+    color: #65C9EC;
+    letter-spacing: 1.2px;
+    margin-bottom: 17px;
+    text-transform: uppercase;
+}
+
+/* LAYER LIST */
+
+#layer-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.layer-row {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    font-size: 13px;
+    color: #E8F0F5;
+    cursor: pointer;
+}
+
+.layer-row input {
+    width: 16px;
+    height: 16px;
+    accent-color: #28B5E5;
+    cursor: pointer;
+}
+
+.legend-symbol {
+    width: 13px;
+    height: 13px;
+    display: inline-block;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.legend-boundary {
+    background: transparent;
+    border: 2px solid #202020;
+}
+
+.legend-water {
+    background: #2589D1;
+}
+
+.legend-stream {
+    background: #63B8E8;
+    height: 3px;
+}
+
+.legend-roads {
+    background: #F0789D;
+    height: 3px;
+}
+
+.legend-railway {
+    background: #A78BFA;
+    height: 3px;
+}
+
+.legend-landuse {
+    background: #E6C74B;
+}
+
+.legend-buildings {
+    background: #9C8A79;
+}
+
+/* SELECT ALL / CLEAR ALL */
+
+.layer-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 18px;
+}
+
+.layer-actions button {
+    flex: 1;
+    padding: 8px;
+    font-size: 11px;
+    border: 1px solid #57738B;
+    background: #203F5B;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.layer-actions button:hover {
+    background: #087EAF;
+}
+
+/* BASEMAP BUTTONS */
+
+.basemap-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.basemap-btn {
+    width: 100%;
+    padding: 12px 13px;
+    background: #203F5B;
+    border: 1px solid #47647C;
+    border-radius: 5px;
+    color: #E7F0F6;
+    text-align: left;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.basemap-btn:hover {
+    background: #285A7C;
+}
+
+.basemap-btn.active {
+    background: #087EAF;
+    border-color: #55C8F0;
+    color: white;
+}
+
+.basemap-btn span {
+    margin-right: 9px;
+}
+
+/* FOOTER */
+
+.sidebar-footer {
+    padding: 18px 20px;
+    color: #9CB7CA;
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+/* MAP AREA */
+
+#map-container {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    position: relative;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+    background: #E7E9E6;
+}
+
+/* NORTH ARROW */
+
+#north-arrow {
+    position: absolute;
+    top: 20px;
+    right: 23px;
+    z-index: 500;
+    background: rgba(255,255,255,0.96);
+    width: 58px;
+    height: 75px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    box-shadow: 0 2px 9px rgba(0,0,0,0.25);
+}
+
+.north-label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #142D46;
+}
+
+.north-symbol {
+    font-size: 37px;
+    line-height: 38px;
+    color: #142D46;
+}
+
+/* SCALE BAR CONTAINER */
+
+#scale-container {
+    position: absolute;
+    bottom: 22px;
+    left: 22px;
+    z-index: 9999;
+    background: rgba(255,255,255,0.96);
+    padding: 10px 14px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    min-width: 150px;
+}
+
+/* SCALE LINE */
+
+#scale-container .ol-scale-line {
+    position: relative !important;
+    left: auto !important;
+    bottom: auto !important;
+    right: auto !important;
+    background: transparent !important;
+    padding: 0 !important;
+}
+
+#scale-container .ol-scale-line-inner {
+    border: 2px solid #142D46 !important;
+    border-top: none !important;
+    color: #142D46 !important;
+    font-size: 12px !important;
+    font-weight: bold;
+    margin: 0 !important;
+}
+
+/* OPENLAYERS CONTROLS */
+
+.ol-control {
+    background: rgba(255,255,255,0.3) !important;
+    padding: 3px !important;
+}
+
+.ol-control > button {
+    background: #FFFFFF !important;
+    color: #243B50 !important;
+    border-radius: 4px !important;
+}
+
+.ol-control > button:hover {
+    background: #DCECF4 !important;
+}
+
+.ol-attribution {
+    font-size: 10px !important;
+}
+
+/* POPUP */
+
+.ol-popup {
+    background: white;
+    border-radius: 7px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width: 700px) {
+
+    #sidebar {
+        width: 225px;
+        min-width: 225px;
+    }
+
+    .dashboard-header h1 {
+        font-size: 19px;
+    }
+
+    .panel-section {
+        padding: 15px;
+    }
+
+}
+
+</style>
 
 </head>
 
@@ -374,7 +391,6 @@
 
         </div>
 
-
         <!-- MAP LEGEND -->
 
         <div class="panel-section">
@@ -384,11 +400,7 @@
                 &nbsp; Map Legend
             </div>
 
-            <div id="layer-list">
-
-                <!-- Generated dynamically from qgis2web layers -->
-
-            </div>
+            <div id="layer-list"></div>
 
             <div class="layer-actions">
 
@@ -399,7 +411,6 @@
             </div>
 
         </div>
-
 
         <!-- BASEMAPS -->
 
@@ -428,7 +439,6 @@
 
         </div>
 
-
         <!-- FOOTER -->
 
         <div class="sidebar-footer">
@@ -446,7 +456,7 @@
     </aside>
 
 
-    <!-- MAP -->
+    <!-- MAP AREA -->
 
     <main id="map-container">
 
@@ -463,7 +473,6 @@
 
         </div>
 
-
         <!-- NORTH ARROW -->
 
         <div id="north-arrow">
@@ -474,12 +483,16 @@
 
         </div>
 
+        <!-- SCALE BAR TARGET -->
+
+        <div id="scale-container"></div>
+
     </main>
 
 </div>
 
 
-<!-- EXISTING QGIS2WEB SCRIPTS -->
+<!-- QGIS2WEB SCRIPTS -->
 
 <script src="resources/qgis2web_expressions.js"></script>
 
@@ -494,7 +507,7 @@
 <script src="resources/olms.js"></script>
 
 
-<!-- YOUR ORIGINAL LAYERS -->
+<!-- ORIGINAL MAP LAYERS -->
 
 <script src="layers/buildings_2.js"></script>
 
@@ -543,11 +556,10 @@
 
     function initializeDashboard() {
 
-        // Wait for qgis2web map initialization
-
-        if (typeof map === "undefined" ||
-            typeof ol === "undefined") {
-
+        if (
+            typeof map === "undefined" ||
+            typeof ol === "undefined"
+        ) {
             setTimeout(initializeDashboard, 300);
             return;
         }
@@ -557,9 +569,9 @@
         map.set("dashboardInitialized", true);
 
 
-        /* ==================================
+        /* =================================
            1. GET ORIGINAL QGIS2WEB LAYERS
-        ================================== */
+        ================================= */
 
         var originalLayers =
             (typeof layersList !== "undefined")
@@ -571,82 +583,82 @@
         });
 
 
-        /* ==================================
-           2. FIND LAYERS BY THEIR NAMES
-        ================================== */
+        /* =================================
+           2. LAYER DEFINITIONS
+        ================================= */
 
-        function getLayerName(layer) {
-
-            var values = [
-                layer.get("title"),
-                layer.get("name"),
-                layer.get("popuplayertitle"),
-                layer.get("displayName")
-            ];
-
-            return values.filter(Boolean).join(" ").toLowerCase();
-        }
-
-
-        var layerDefinitions = [
+        var definitions = [
 
             {
                 label: "District Boundary",
                 pattern: /yadgir.*boundary|boundary/,
                 symbol: "legend-boundary",
-                fallbackIndex: 6
+                index: 6
             },
 
             {
                 label: "Waterbodies",
                 pattern: /waterbod/,
                 symbol: "legend-water",
-                fallbackIndex: 5
+                index: 5
             },
 
             {
                 label: "Streams",
                 pattern: /stream/,
                 symbol: "legend-stream",
-                fallbackIndex: 4
+                index: 4
             },
 
             {
                 label: "Roads",
                 pattern: /roads?/,
                 symbol: "legend-roads",
-                fallbackIndex: 3
+                index: 3
             },
 
             {
                 label: "Railway",
                 pattern: /railway/,
                 symbol: "legend-railway",
-                fallbackIndex: 2
+                index: 2
             },
 
             {
                 label: "Land Use",
                 pattern: /landuse|land.use/,
                 symbol: "legend-landuse",
-                fallbackIndex: 1
+                index: 1
             },
 
             {
                 label: "Buildings",
                 pattern: /buildings?/,
                 symbol: "legend-buildings",
-                fallbackIndex: 0
+                index: 0
             }
 
         ];
 
 
+        function getLayerName(layer) {
+
+            return [
+                layer.get("title"),
+                layer.get("name"),
+                layer.get("popuplayertitle"),
+                layer.get("displayName")
+            ].filter(Boolean).join(" ").toLowerCase();
+
+        }
+
+
         var matchedLayers = [];
+
         var usedLayers = [];
 
 
-        layerDefinitions.forEach(function(definition) {
+        definitions.forEach(function(definition) {
 
             var layer = allLayers.find(function(item) {
 
@@ -656,14 +668,12 @@
             });
 
 
-            // Fallback to the original exported layer order
-
             if (!layer) {
 
-                layer = allLayers[definition.fallbackIndex];
+                var candidate = allLayers[definition.index];
 
-                if (usedLayers.includes(layer)) {
-                    layer = null;
+                if (candidate && !usedLayers.includes(candidate)) {
+                    layer = candidate;
                 }
 
             }
@@ -674,9 +684,13 @@
                 usedLayers.push(layer);
 
                 matchedLayers.push({
+
                     label: definition.label,
+
                     symbol: definition.symbol,
+
                     layer: layer
+
                 });
 
             }
@@ -684,14 +698,14 @@
         });
 
 
-        /* ==================================
-           3. CREATE SIDEBAR LAYER CONTROLS
-        ================================== */
+        /* =================================
+           3. CREATE LEGEND CHECKBOXES
+        ================================= */
 
         var layerList = document.getElementById("layer-list");
 
 
-        matchedLayers.forEach(function(item, index) {
+        matchedLayers.forEach(function(item) {
 
             var label = document.createElement("label");
 
@@ -707,7 +721,7 @@
 
             checkbox.addEventListener("change", function() {
 
-                item.layer.setVisible(checkbox.checked);
+                item.layer.setVisible(this.checked);
 
             });
 
@@ -729,15 +743,14 @@
 
             label.appendChild(name);
 
-
             layerList.appendChild(label);
 
         });
 
 
-        /* ==================================
+        /* =================================
            4. SELECT ALL / CLEAR ALL
-        ================================== */
+        ================================= */
 
         document.getElementById("show-all")
         .addEventListener("click", function() {
@@ -745,8 +758,6 @@
             matchedLayers.forEach(function(item) {
 
                 item.layer.setVisible(true);
-
-                item.checkbox = true;
 
             });
 
@@ -779,18 +790,32 @@
         });
 
 
-        /* ==================================
-           5. CREATE BASEMAPS
-        ================================== */
+        /* =================================
+           5. BASEMAP LAYERS
+        ================================= */
+
+        // Hide old tile basemaps if present.
+        // This prevents two basemaps appearing together.
+
+        allLayers.forEach(function(layer) {
+
+            if (layer instanceof ol.layer.Tile) {
+                layer.setVisible(false);
+            }
+
+        });
+
+
+        // SATELLITE
 
         var satellite = new ol.layer.Tile({
 
             source: new ol.source.XYZ({
 
-                url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                url:
+                "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
 
-                attributions:
-                'Tiles © Esri'
+                attributions: "Tiles © Esri"
 
             }),
 
@@ -798,6 +823,8 @@
 
         });
 
+
+        // OPENSTREETMAP
 
         var osm = new ol.layer.Tile({
 
@@ -808,14 +835,17 @@
         });
 
 
+        // CARTODB LIGHT
+
         var light = new ol.layer.Tile({
 
             source: new ol.source.XYZ({
 
-                url: "https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+                url:
+                "https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
 
                 attributions:
-                '© OpenStreetMap contributors © CARTO'
+                "© OpenStreetMap contributors © CARTO"
 
             }),
 
@@ -824,10 +854,7 @@
         });
 
 
-        /*
-          Insert basemaps at the bottom of the map layer stack.
-          Original vector layers remain above the basemaps.
-        */
+        // Add basemaps below vector layers.
 
         map.getLayers().insertAt(0, satellite);
 
@@ -836,9 +863,9 @@
         map.getLayers().insertAt(0, light);
 
 
-        /* ==================================
-           6. BASEMAP BUTTON FUNCTION
-        ================================== */
+        /* =================================
+           6. BASEMAP BUTTONS
+        ================================= */
 
         var basemapOptions = [
 
@@ -865,7 +892,6 @@
             document.getElementById(option.id)
             .addEventListener("click", function() {
 
-
                 basemapOptions.forEach(function(base) {
 
                     base.layer.setVisible(false);
@@ -881,39 +907,38 @@
                 document.getElementById(option.id)
                 .classList.add("active");
 
-
             });
 
         });
 
 
-        /* ==================================
-           7. ADD SCALE BAR
-        ================================== */
+        /* =================================
+           7. PROFESSIONAL SCALE BAR
+        ================================= */
 
-        map.addControl(
+        var scaleBar = new ol.control.ScaleLine({
 
-            new ol.control.ScaleLine({
+            units: "metric",
 
-                units: "metric",
+            bar: true,
 
-                bar: false,
+            text: true,
 
-                text: true,
+            minWidth: 120,
 
-                minWidth: 100
+            target: document.getElementById("scale-container")
 
-            })
-
-        );
+        });
 
 
-        /* ==================================
-           8. UPDATE MAP SIZE
-        ================================== */
+        map.addControl(scaleBar);
+
+
+        /* =================================
+           8. MAP RESIZE
+        ================================= */
 
         map.updateSize();
-
 
         window.addEventListener("resize", function() {
 
@@ -924,14 +949,14 @@
 
         console.log("Yadgir GIS Dashboard Initialized");
 
-        console.log("Original layers detected:", allLayers.length);
+        console.log("Original layers:", allLayers.length);
 
-        console.log("Layers connected:", matchedLayers.length);
+        console.log("Connected layers:", matchedLayers.length);
+
+        console.log("Scale bar added successfully");
 
     }
 
-
-    // Start dashboard after page loading
 
     if (document.readyState === "loading") {
 
