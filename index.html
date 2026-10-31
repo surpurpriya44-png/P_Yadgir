@@ -278,53 +278,67 @@ html, body {
     color: #142D46;
 }
 
-/* ==================================
-   SCALE BAR - BOTTOM LEFT (OPPOSITE TO ATTRIBUTION)
-================================== */
+/* ==========================================================================
+   SCALE BAR POSITION FIX - BOTTOM-LEFT (OPPOSITE OF ATTRIBUTION TEXT)
+   ========================================================================== */
 
-.ol-scale-line,
-#map .ol-scale-line,
-#map .ol-scale-bar,
-#map div.ol-scale-line {
+#custom-scale-target {
     position: absolute !important;
-    left: 20px !important;
-    bottom: 25px !important;
+    bottom: 12px !important;
+    left: 15px !important;
     top: auto !important;
     right: auto !important;
-    transform: none !important;
-    background: rgba(255, 255, 255, 0.92) !important;
-    padding: 6px 10px !important;
-    border-radius: 4px !important;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3) !important;
     z-index: 9999 !important;
+    pointer-events: auto;
 }
 
-/* Scale line & step bar appearance */
+/* Force any and all scale elements to bottom-left */
+.ol-scale-line,
+.ol-scale-bar,
+#map .ol-scale-line,
+#map .ol-scale-bar,
 .ol-scale-line-inner,
-#map .ol-scale-line-inner {
+div[class*="scale"] {
+    bottom: 12px !important;
+    left: 15px !important;
+    top: auto !important;
+    right: auto !important;
+}
+
+.ol-scale-line,
+#custom-scale-target .ol-scale-line {
+    position: absolute !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.3) !important;
+    border: 1px solid rgba(0,0,0,0.2) !important;
+}
+
+.ol-scale-line-inner {
     border: 2px solid #142D46 !important;
     border-top: none !important;
     color: #142D46 !important;
-    font-size: 12px !important;
-    font-weight: bold !important;
-    margin: 0 !important;
-}
-
-.ol-scale-step-text,
-.ol-scale-text,
-#map .ol-scale-step-text,
-#map .ol-scale-text {
-    color: #142D46 !important;
     font-size: 11px !important;
     font-weight: bold !important;
+    text-align: center !important;
 }
 
-.ol-scale-step-marker,
-#map .ol-scale-step-marker {
-    background: #142D46 !important;
+/* Hide extra overlapping scale text on top-left */
+#map > div:not(#north-arrow):not(.ol-viewport):not(#popup):not(#custom-scale-target) {
+    display: none !important;
 }
 
-/* QGIS ATTRIBUTION - BOTTOM RIGHT */
+/* Ensure zoom controls stay cleanly on top left without scale overlap */
+#map .ol-zoom {
+    top: 15px !important;
+    left: 15px !important;
+    bottom: auto !important;
+    right: auto !important;
+    z-index: 400 !important;
+}
+
+/* QGIS ATTRIBUTION (BOTTOM-RIGHT) */
 #map .ol-attribution {
     position: absolute !important;
     right: 5px !important;
@@ -333,13 +347,6 @@ html, body {
     top: auto !important;
     z-index: 1000 !important;
     font-size: 10px !important;
-}
-
-/* ZOOM BUTTONS POSITIONING */
-#map .ol-zoom {
-    top: 20px !important;
-    left: 20px !important;
-    bottom: auto !important;
 }
 
 /* OPENLAYERS CONTROLS */
@@ -478,6 +485,9 @@ html, body {
     <main id="map-container">
 
         <div id="map">
+
+            <!-- DEDICATED SCALE BAR CONTAINER (BOTTOM LEFT) -->
+            <div id="custom-scale-target"></div>
 
             <div id="popup" class="ol-popup">
 
@@ -882,54 +892,46 @@ html, body {
         });
 
 
-        /* 8. SCALE BAR SETUP */
+        /* 8. SCALE BAR - EXPLICIT TARGET POSITIONING */
 
-        // Agar pehle se koi scale control ho toh duplicate hone se bachane ke liye add check
-        var existingScale = map.getControls().getArray().find(function(c) {
-            return c instanceof ol.control.ScaleLine;
+        // Remove any old scale controls created by qgis2web to avoid duplicates
+        var controlsToRemove = [];
+        map.getControls().forEach(function(c) {
+            if (c instanceof ol.control.ScaleLine) {
+                controlsToRemove.push(c);
+            }
+        });
+        controlsToRemove.forEach(function(c) {
+            map.removeControl(c);
         });
 
-        if (!existingScale) {
-            var scaleBar = new ol.control.ScaleLine({
-                units: "metric",
-                bar: true,
-                text: true,
-                minWidth: 120
-            });
-            map.addControl(scaleBar);
-        }
+        // Target container strictly at bottom-left
+        var scaleTarget = document.getElementById("custom-scale-target");
 
-
-        /* Force scale bar to bottom left (opposite side of bottom-right attribution) */
-        function positionScaleBar() {
-            var scaleElements = document.querySelectorAll(
-                ".ol-scale-line, .ol-scale-bar"
-            );
-
-            scaleElements.forEach(function(el) {
-                el.style.setProperty("position", "absolute", "important");
-                el.style.setProperty("left", "20px", "important");
-                el.style.setProperty("bottom", "25px", "important");
-                el.style.setProperty("top", "auto", "important");
-                el.style.setProperty("right", "auto", "important");
-                el.style.setProperty("transform", "none", "important");
-                el.style.setProperty("z-index", "9999", "important");
-            });
-        }
-
-        positionScaleBar();
-        map.updateSize();
-        setTimeout(positionScaleBar, 200);
-
-        map.on("rendercomplete", positionScaleBar);
-
-        window.addEventListener("resize", function() {
-            map.updateSize();
-            positionScaleBar();
+        var cleanScaleBar = new ol.control.ScaleLine({
+            units: "metric",
+            bar: false,
+            text: false,
+            minWidth: 100,
+            target: scaleTarget
         });
 
-        console.log("Yadgir GIS Dashboard Initialized");
-        console.log("Scale bar positioned at bottom-left corner.");
+        map.addControl(cleanScaleBar);
+
+        // Move any dynamically created scale elements to the bottom-left container
+        function attachScaleBarToBottom() {
+            var strayScales = document.querySelectorAll('.ol-scale-line:not(#custom-scale-target .ol-scale-line), .ol-scale-bar');
+            strayScales.forEach(function(el) {
+                if (el.parentNode !== scaleTarget) {
+                    scaleTarget.appendChild(el);
+                }
+            });
+        }
+
+        attachScaleBarToBottom();
+        map.on("rendercomplete", attachScaleBarToBottom);
+
+        console.log("Scale bar placed strictly in the bottom-left opposite to attribution text.");
     }
 
 
